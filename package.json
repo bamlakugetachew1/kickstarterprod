@@ -1,0 +1,37 @@
+{
+  "name": "finalyearbackend",
+  "version": "1.0.0",
+  "description": "a backend for final year project",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bamlakugetachew1/KickstarterBackend.git"
+  },
+  "keywords": [
+    "author"
+  ],
+  "author": "bamlaku",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bamlakugetachew1/KickstarterBackend/issues"
+  },
+  "homepage": "https://github.com/bamlakugetachew1/KickstarterBackend#readme",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
+  }
+}
