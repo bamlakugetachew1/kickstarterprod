@@ -1,3 +1,0 @@
- GET /public/index.html 404 6.677 ms Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Thu, 04 Apr 2024 10:54:53 GMT  err-message -
- GET / 404 2.315 ms Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Thu, 04 Apr 2024 10:55:02 GMT  err-message -
- GET /favicon.ico 404 0.475 ms Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Thu, 04 Apr 2024 10:55:03 GMT  err-message -
