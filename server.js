@@ -1,11 +1,42 @@
 const app = require('./app');
-const logger = require('./logger/logger');
 const { port } = require('./config/env.config');
+const connectToMongo = require('./config/DbConnection');
+const logger = require('./logger/logger');
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error(err);
-  } else {
-    logger.info(`Listening on port ${port}`);
+(async () => {
+  let server = null;
+  try {
+    // Connect to MongoDB first
+    await connectToMongo();
+
+    // Start the server only after the connection is established
+    server = app.listen(port, (err) => {
+      if (err) {
+        logger.error(err);
+      } else {
+        logger.info(`Listening on port ${port}`);
+      }
+    });
+
+    const exitHandler = () => {
+      if (server) {
+        server.close(() => {
+          logger.error('Server closed');
+          process.exit(1); // Exit the process after handling the uncaught exception
+        });
+      } else {
+        process.exit(1);
+      }
+    };
+
+    const unExpectedErrorHandler = (error) => {
+      logger.error(error);
+      exitHandler();
+    };
+
+    process.on('unhandledRejection', unExpectedErrorHandler);
+    process.on('uncaughtException', unExpectedErrorHandler);
+  } catch (error) {
+    logger.error(error);
   }
-});
+})();
