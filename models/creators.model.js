@@ -7,9 +7,14 @@ const creatorSchema = new mongoose.Schema(
       required: [true, 'username is a required field'],
       minlength: 5,
     },
+    about: {
+      type: String,
+      minlength: 25,
+    },
     email: {
       type: String,
       required: [true, 'Email is a required field'],
+      unique: true,
       validate: {
         validator(v) {
           return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v);
@@ -43,6 +48,10 @@ const creatorSchema = new mongoose.Schema(
         ref: 'Project',
       },
     ],
+    interest: {
+      type: [String],
+      default: [],
+    },
   },
   {
     toJSON: { virtuals: true },

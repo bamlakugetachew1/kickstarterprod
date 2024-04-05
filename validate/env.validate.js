@@ -5,6 +5,7 @@ const validateconfig = joi
     port: joi.number().required(),
     NODE_ENV: joi.string().required(),
     MONGO_URL: joi.string().required(),
+    SecretToken: joi.string().required(),
   })
   .unknown();
 module.exports = validateconfig;

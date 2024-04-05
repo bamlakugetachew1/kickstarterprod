@@ -11,4 +11,5 @@ module.exports = {
   port: envVlues.port,
   NODE_ENV: envVlues.NODE_ENV,
   MONGO_URL: envVlues.MONGO_URL,
+  SecretToken: envVlues.SecretToken,
 };
