@@ -48,6 +48,12 @@ const creatorSchema = new mongoose.Schema(
         ref: 'Project',
       },
     ],
+    backedproject: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project',
+      },
+    ],
     interest: {
       type: [String],
       default: [],

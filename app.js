@@ -3,6 +3,7 @@ const { xss } = require('express-xss-sanitizer');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const cors = require('cors');
+const hpp = require('hpp');
 const ErrorHandler = require('./middlewares/ErrorHandler');
 const morgan = require('./config/morgan');
 const projectroutes = require('./routes/projectroutes');
@@ -12,6 +13,7 @@ const paymmentroutes = require('./routes/paymentroutes');
 
 const app = express();
 app.use(xss());
+app.use(hpp());
 app.use(helmet());
 app.use(
   mongoSanitize({

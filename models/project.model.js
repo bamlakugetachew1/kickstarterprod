@@ -73,6 +73,19 @@ const projectSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+projectSchema.virtual('percentfunded').get(function () {
+  return (this.amountReached * 100) / this.goal;
+});
 
+projectSchema.virtual('daysLeft').get(function () {
+  const deadlineDate = new Date(this.deadline);
+  const today = new Date();
+  const differenceMilliseconds = deadlineDate.getTime() - today.getTime();
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const differenceDays = Math.ceil(differenceMilliseconds / millisecondsPerDay);
+  return differenceDays;
+});
+
+projectSchema.index({ title: 'text', descreptons: 'text', catagory: 'text' });
 const Project = mongoose.model('Project', projectSchema);
 module.exports = Project;
