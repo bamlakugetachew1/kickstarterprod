@@ -12,5 +12,6 @@ router.get('/projects/recomended', projectcontroller.getRecomendedProject);
 router.get('/projects/stats', projectcontroller.getOverallPlatformStatus);
 router.get('/projects/single', projectcontroller.getSingleProject);
 router.get('/projects/search', projectcontroller.searchprojects);
+router.get('/projects/singleprojectmetrics', projectcontroller.getSingleProjectStatus);
 
 module.exports = router;

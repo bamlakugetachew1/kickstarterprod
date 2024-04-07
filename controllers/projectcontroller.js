@@ -8,6 +8,7 @@ const { imageProcessor, videoProcessor } = require('../background-tasks');
 const getContentType = require('../utils/getContentType');
 const recomendedProjectAggregate = require('../aggregateQuery/recomendedProjectAggregate');
 const totalFundingRaisedAggregate = require('../aggregateQuery/totalFundingRaisedAggregate');
+const getSingleProjectStatusAggregate = require('../aggregateQuery/SingleProjectStatusAggregate'); // Assuming the file path is correct
 
 exports.createproject = catchAsync(async (req, res) => {
   const project = new Project(req.body);
@@ -44,6 +45,16 @@ exports.getOverallPlatformStatus = catchAsync(async (req, res) => {
     totalnumberofdonations: totalnumberofdonations[0].totalAmount,
     numberofprojects: numberofprojects.length,
     pledges,
+  });
+});
+
+exports.getSingleProjectStatus = catchAsync(async (req, res) => {
+  const { projectid } = req.query;
+  const SingleProjectStatusAggregate = getSingleProjectStatusAggregate(projectid);
+  const singlestats = await Payment.aggregate(SingleProjectStatusAggregate);
+
+  return res.status(200).json({
+    singlestats,
   });
 });
 
