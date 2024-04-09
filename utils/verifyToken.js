@@ -14,6 +14,7 @@ exports.verifyToken = (req, res, next) => {
         return res.status(401).json({ message: 'Invalid token' });
       }
       req.user = user;
+      // eslint-disable-next-line no-underscore-dangle
       next();
     });
   } catch (err) {

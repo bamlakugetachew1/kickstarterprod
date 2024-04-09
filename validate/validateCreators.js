@@ -8,8 +8,6 @@ const validateCreator = (req, res, next) => {
     password: Joi.string().min(5).required(),
     userimage: Joi.string(),
     following: Joi.array().items(Joi.string()),
-    favourites: Joi.array().items(Joi.string()),
-    backedproject: Joi.array().items(Joi.string()),
     interest: Joi.array().items(Joi.string()),
   }).unknown();
 

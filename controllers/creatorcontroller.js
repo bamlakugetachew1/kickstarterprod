@@ -1,7 +1,11 @@
-const bcrypt = require('bcrypt');
 const Creator = require('../models/creators.model');
+const MyProject = require('../models/myproject.model');
+const FavouriteProject = require('../models/favourites.model');
+const BackedProject = require('../models/backedproject.model');
 const catchAsync = require('../utils/catchAsync');
 const generateToken = require('../utils/generateToken');
+const compareHashes = require('../utils/compareHashes');
+const hashPassword = require('../utils/hashPassword');
 // eslint-disable-next-line consistent-return
 exports.createcreators = catchAsync(async (req, res) => {
   const existingUser = await Creator.findOne({ email: req.body.email });
@@ -12,9 +16,7 @@ exports.createcreators = catchAsync(async (req, res) => {
     });
   }
 
-  const salt = await bcrypt.genSalt(10);
-  req.body.password = await bcrypt.hash(req.body.password, salt);
-
+  req.body.password = await hashPassword(req.body.password);
   const creator = new Creator(req.body);
   await creator.save();
 
@@ -31,7 +33,7 @@ exports.loginCreator = catchAsync(async (req, res) => {
       message: 'email is not found in our system',
     });
   }
-  const validate = await bcrypt.compare(req.body.password, creator.password);
+  const validate = await compareHashes(req.body.password, creator.password);
   if (!validate) {
     return res.status(401).json({
       message: 'Incorrect password.',
@@ -50,6 +52,9 @@ exports.loginCreator = catchAsync(async (req, res) => {
 
 exports.indivisualCreatorsDetails = catchAsync(async (req, res) => {
   const { creatorid } = req.query;
+  if (!creatorid) {
+    return res.status(400).json({ error: 'Creator ID is required in query parameters' });
+  }
   const creator = await Creator.findOne({ _id: creatorid }).select({
     password: 0,
     email: 0,
@@ -63,12 +68,15 @@ exports.indivisualCreatorsDetails = catchAsync(async (req, res) => {
 
 exports.getFavourites = catchAsync(async (req, res) => {
   const { creatorid } = req.query;
-  const favourites = await Creator.findOne({ _id: creatorid })
-    .select('favourites')
+  if (!creatorid) {
+    return res.status(400).json({ error: 'Creator ID is required in query parameters' });
+  }
+  const favourites = await FavouriteProject.find({ creatorid })
+    .select('projectid')
     .populate({
-      path: 'favourites',
+      path: 'projectid',
       select: '-reward -updates -videoLink',
-      options: { limit: 8 },
+      options: { limit: 5 },
     });
   if (favourites.length === 0) {
     return res.status(404).json({ error: 'No favourites added by the creator' });
@@ -78,12 +86,15 @@ exports.getFavourites = catchAsync(async (req, res) => {
 
 exports.getBackedProjects = catchAsync(async (req, res) => {
   const { creatorid } = req.query;
-  const backedproject = await Creator.findOne({ _id: creatorid })
-    .select('backedproject')
+  if (!creatorid) {
+    return res.status(400).json({ error: 'Creator ID is required in query parameters' });
+  }
+  const backedproject = await BackedProject.find({ creatorid })
+    .select('projectid')
     .populate({
-      path: 'backedproject',
+      path: 'projectid',
       select: '-reward -updates -videoLink',
-      options: { limit: 8 },
+      options: { limit: 5 },
     });
   if (backedproject.length === 0) {
     return res.status(404).json({ error: 'Not backedproject yet' });
@@ -93,15 +104,50 @@ exports.getBackedProjects = catchAsync(async (req, res) => {
 
 exports.getMyListedProjects = catchAsync(async (req, res) => {
   const { creatorid } = req.query;
-  const myproject = await Creator.findOne({ _id: creatorid })
-    .select('myproject')
+  if (!creatorid) {
+    return res.status(400).json({ error: 'Creator ID is required in query parameters' });
+  }
+  const myproject = await MyProject.find({ creatorid })
+    .select('projectid')
     .populate({
-      path: 'myproject',
+      path: 'projectid',
       select: '-reward -updates -videoLink',
-      options: { limit: 8 },
+      options: { limit: 5 },
     });
   if (myproject.length === 0) {
     return res.status(404).json({ error: 'Not Listed project yet' });
   }
   return res.status(200).json({ myproject });
+});
+
+exports.updateAccountDetails = catchAsync(async (req, res) => {
+  if (req.body.password) {
+    req.body.password = await hashPassword(req.body.password);
+  }
+  // eslint-disable-next-line max-len, no-underscore-dangle
+  const updateAccountDetails = await Creator.findByIdAndUpdate(req.user.user._id, { $set: req.body });
+  if (!updateAccountDetails) {
+    return res.status(404).json({
+      error: 'Account not found.',
+    });
+  }
+  return res.status(200).json({
+    message: 'Account Details updated successfully.',
+  });
+});
+
+exports.changevisibility = catchAsync(async (req, res) => {
+  // eslint-disable-next-line no-underscore-dangle
+  const creator = await Creator.findById(req.user.user._id);
+  if (!creator) {
+    return res.status(404).json({ error: 'No user found' });
+  }
+  if (creator.visibility === 'public') {
+    creator.visibility = 'private';
+    await creator.save();
+    return res.status(200).json({ success: 'Your profile made private' });
+  }
+  creator.visibility = 'public';
+  await creator.save();
+  return res.status(200).json({ success: 'Your profile made Public' });
 });

@@ -27,12 +27,6 @@ const creatorSchema = new mongoose.Schema(
       required: [true, 'password is a required field'],
       minlength: 5,
     },
-    myproject: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project',
-      },
-    ],
     userimage: {
       type: String,
     },
@@ -42,21 +36,14 @@ const creatorSchema = new mongoose.Schema(
         ref: 'Creator',
       },
     ],
-    favourites: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project',
-      },
-    ],
-    backedproject: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project',
-      },
-    ],
     interest: {
       type: [String],
       default: [],
+    },
+    visibility: {
+      type: String,
+      enum: ['public', 'private'],
+      default: 'public',
     },
   },
   {

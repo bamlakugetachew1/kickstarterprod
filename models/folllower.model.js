@@ -10,7 +10,6 @@ const followerSchema = new mongoose.Schema(
     followedid: {
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'followedid is a required field'],
-      ref: 'Creator',
     },
   },
   {
