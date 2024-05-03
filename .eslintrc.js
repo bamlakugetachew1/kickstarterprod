@@ -26,5 +26,6 @@ module.exports = {
   rules: {
     // You can add any additional rules here if needed
     'object-curly-newline': 'off',
+    'implicit-arrow-linebreak': 'off',
   },
 };

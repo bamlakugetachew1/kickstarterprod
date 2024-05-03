@@ -1,15 +1,12 @@
 const app = require('./app');
 const { port } = require('./config/env.config');
-const connectToMongo = require('./config/DbConnection');
+const connectToMongo = require('./config/db.connection');
 const logger = require('./logger/logger');
 
 (async () => {
   let server = null;
   try {
-    // Connect to MongoDB first
     await connectToMongo();
-
-    // Start the server only after the connection is established
     server = app.listen(port, (err) => {
       if (err) {
         logger.error(err);
