@@ -8,3 +8,5 @@ module.exports.getContentType = require('./getContentType');
 module.exports.hashPassword = require('./hashPassword');
 module.exports.uploads = require('./multer');
 module.exports.handleServiceRequest = require('./handleServiceRequest');
+module.exports.payment = require('./payment');
+module.exports.eventEmitter = require('./eventEmitter');

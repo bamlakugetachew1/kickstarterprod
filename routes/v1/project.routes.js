@@ -4,10 +4,6 @@ const projectcontroller = require('../../controllers/project.controller');
 const upload = require('../../utils/multer');
 const verifyToken = require('../../middlewares/verify.token');
 
-router
-  .route('')
-  .post(verifyToken.verifyToken, validateProject, projectcontroller.createProject)
-  .get(projectcontroller.getAllProject);
 router.post('/uploadimages', upload.array('coverimage'), projectcontroller.uploadImage);
 router.post('/uploadvideo', upload.array('video'), projectcontroller.uploadVideo);
 router.get('/readimage', projectcontroller.streamImage);
@@ -18,7 +14,13 @@ router.get('/single', projectcontroller.getSingleProject);
 router.get('/search', projectcontroller.searchProjects);
 router.get('/singleprojectmetrics', projectcontroller.getSingleProjectStatus);
 router.get('/recentfivebackers', projectcontroller.getRecentFiveBackers);
-router.delete('/deleteproject/:projectid', verifyToken.verifyToken, projectcontroller.deleteProject);
-router.patch('/updateproject', verifyToken.verifyToken, projectcontroller.updateProject);
+router
+  .route('')
+  .post(verifyToken.verifyToken, validateProject, projectcontroller.createProject)
+  .get(projectcontroller.getAllProject);
+router.use(verifyToken.verifyToken);
+
+router.delete('/deleteproject/:projectid', projectcontroller.deleteProject);
+router.patch('/updateproject', projectcontroller.updateProject);
 
 module.exports = router;

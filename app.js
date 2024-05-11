@@ -4,11 +4,20 @@ const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const cors = require('cors');
 const hpp = require('hpp');
+const session = require('express-session');
 const ErrorHandler = require('./middlewares/error.handler');
 const morgan = require('./config/morgan');
 const v1routes = require('./routes/v1');
+const { SessionKey } = require('./config/env.config');
 
 const app = express();
+app.use(
+  session({
+    secret: SessionKey,
+    resave: false,
+    saveUninitialized: false,
+  }),
+);
 app.use(xss());
 app.use(hpp());
 app.use(helmet());
@@ -26,7 +35,7 @@ app.use('/api/v1', v1routes);
 
 // handle 404 error
 app.use((req, res) => {
-  res.status(404).send('The resource is not availlable in this page');
+  res.status(404).send('The resource is not availlable');
 });
 
 app.use(ErrorHandler);

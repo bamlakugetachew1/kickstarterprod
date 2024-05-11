@@ -4,11 +4,11 @@ const { projectService } = require('../services');
 const { handleServiceRequest, catchAsync } = require('../utils');
 
 exports.createProject = catchAsync(async (req, res) =>
-  handleServiceRequest(res, projectService.createProject, httpStatus.CREATED, req.body, 'Project added successfully'),
+  handleServiceRequest(res, projectService.createProject, httpStatus.CREATED, req.body),
 );
 
 exports.updateProject = catchAsync(async (req, res) =>
-  handleServiceRequest(res, projectService.updateProject, httpStatus.OK, req.body, 'Project updated successfully'),
+  handleServiceRequest(res, projectService.updateProject, httpStatus.OK, req.body),
 );
 
 exports.getAllProject = catchAsync(async (req, res) =>
@@ -37,13 +37,7 @@ exports.searchProjects = catchAsync(async (req, res) =>
 );
 
 exports.deleteProject = catchAsync(async (req, res) =>
-  handleServiceRequest(
-    res,
-    projectService.deleteProject,
-    httpStatus.OK,
-    req.params.projectid,
-    'Project deleted successfully.',
-  ),
+  handleServiceRequest(res, projectService.deleteProject, httpStatus.OK, req.params.projectid),
 );
 
 exports.getRecentFiveBackers = catchAsync(async (req, res) =>

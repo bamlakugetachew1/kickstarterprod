@@ -5,7 +5,8 @@ const validatePayment = (req, res, next) => {
     projectid: Joi.string().required(),
     payerid: Joi.string().required(),
     amount: Joi.number().positive().required(),
-  });
+    message: Joi.string(),
+  }).unknown();
 
   const { error } = paymentValidationSchema.validate(req.body);
   if (error) {

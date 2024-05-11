@@ -4,11 +4,11 @@ const { creatorService } = require('../services');
 const { catchAsync, handleServiceRequest } = require('../utils');
 
 exports.createCreators = catchAsync(async (req, res) =>
-  handleServiceRequest(res, creatorService.createCreators, httpStatus.CREATED, req.body, 'User created successfully'),
+  handleServiceRequest(res, creatorService.createCreators, httpStatus.CREATED, req.body),
 );
 
 exports.loginCreator = catchAsync(async (req, res) =>
-  handleServiceRequest(res, creatorService.loginCreator, httpStatus.CREATED, req.body),
+  handleServiceRequest(res, creatorService.loginCreator, httpStatus.OK, req.body),
 );
 
 exports.individualCreatorsDetails = catchAsync(async (req, res) =>
@@ -36,7 +36,6 @@ exports.updateAccountDetails = catchAsync(async (req, res) =>
     // eslint-disable-next-line no-underscore-dangle
     req.user.user._id,
     req.body,
-    'Account details updated successfully.',
   ),
 );
 

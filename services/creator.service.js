@@ -18,14 +18,15 @@ const createCreators = async (userBody) => {
   const hashedPassword = await hashPassword(userBody.password);
   const newUser = { ...userBody, password: hashedPassword };
 
-  return Creator.create(newUser);
+  await Creator.create(newUser);
+  return 'User created successfully';
 };
 
 const loginCreator = async (userBody) => {
   const { email, password } = userBody;
   const existingUser = await Creator.findOne({ email });
   if (!existingUser) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email not found in our system');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Email not found in our system');
   }
 
   const validatePassword = await compareHashes(password, existingUser.password);
@@ -116,6 +117,7 @@ const updateAccountDetails = async (userid, userBody) => {
   if (!updatedAccount) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Account not found');
   }
+  return 'Account details updated successfully.';
 };
 
 const toggleVisibility = async (userid) => {

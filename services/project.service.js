@@ -7,6 +7,9 @@ const { Project, MyProject, Payment, BackedProject, FavouriteProject } = require
 const { ApiError, getContentType } = require('../utils');
 const aggregateQuery = require('../aggregateQuery');
 const { imageProcessor, videoProcessor } = require('../background-tasks');
+const client = require('../config/redis');
+const { eventEmitter } = require('../utils');
+require('../subscribers/removeCatchedProjects');
 
 const checkProjectId = (projectid) => {
   if (!projectid) {
@@ -54,6 +57,8 @@ const createProject = async (projectData) => {
   if (!savedAssociatedProject) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create associated project');
   }
+  eventEmitter.emit('clearCatched', 'projects');
+  return 'Project added successfully';
 };
 
 const updateProject = async (projectData) => {
@@ -63,13 +68,17 @@ const updateProject = async (projectData) => {
   if (!updatedProject) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Project not found');
   }
+  return 'Project updated successfully';
 };
 
 const getAllProject = async () => {
-  const projects = await Project.find()
-    .select({ reward: 0, updates: 0, videoLink: 0 })
-    .limit(8)
-    .sort({ createdAt: -1 });
+  let projects = await client.get('projects');
+  if (projects) {
+    return JSON.parse(projects);
+  }
+  // eslint-disable-next-line max-len
+  projects = await Project.find().select({ reward: 0, updates: 0, videoLink: 0 }).limit(8).sort({ createdAt: -1 });
+  await client.set('projects', JSON.stringify(projects));
   if (!projects.length) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No projects found');
   }
@@ -143,6 +152,7 @@ const deleteProject = async (projectid) => {
     BackedProject.deleteMany({ projectid }),
     FavouriteProject.deleteMany({ projectid }),
   ]);
+  return 'Project deleted successfully';
 };
 
 const getRecentBackersForProject = async (projectId) => {

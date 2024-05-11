@@ -22,8 +22,12 @@ const paymentSchema = new mongoose.Schema(
         message: (props) => `${props.value} is not a valid amount, it must be greater than zero`,
       },
     },
-    payementmethod: {
+    message: {
       type: String,
+    },
+    paymentemail: {
+      type: String,
+      required: [true, 'a valid paymentemail is required'],
     },
   },
   {

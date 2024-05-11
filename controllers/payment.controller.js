@@ -1,16 +1,35 @@
-const Payment = require('../models/payments.model');
-const catchAsync = require('../utils/catchAsync');
+/* eslint-disable max-len */
+const httpStatus = require('http-status');
+const { paymentService } = require('../services');
+const { catchAsync, handleServiceRequest } = require('../utils');
 
 exports.fundProjects = catchAsync(async (req, res) => {
-  const payementmethod = 'chapa';
-  const payment = new Payment({
-    projectid: req.body.projectid,
-    payerid: req.body.payerid,
-    amount: req.body.amount,
-    payementmethod,
-  });
-  await payment.save();
-  res.status(201).json({
-    message: 'succesfully backed project thanks for supporting',
-  });
+  const { projectid, payerid, amount, message } = req.body;
+  req.session.paymentData = { projectid, payerid, amount, message };
+  handleServiceRequest(res, paymentService.fundProjects, httpStatus.OK, amount, message);
+});
+
+exports.refundPayment = catchAsync(async (req, res) => {
+  const { projectid, paymentemail, isAmount } = req.body;
+  handleServiceRequest(res, paymentService.refundPayment, httpStatus.OK, projectid, paymentemail, isAmount);
+});
+
+exports.paymentFailureHandler = catchAsync(async (req, res) => {
+  req.session.destroy();
+  handleServiceRequest(res, paymentService.paymentFailureHandler, httpStatus.TEMPORARY_REDIRECT);
+});
+
+exports.paymentSucessHandler = catchAsync(async (req, res) => {
+  const { projectid, payerid, amount, message } = req.session.paymentData;
+  const { paymentId } = req.query;
+  handleServiceRequest(
+    res,
+    paymentService.paymentSucessHandler,
+    httpStatus.TEMPORARY_REDIRECT,
+    paymentId,
+    projectid,
+    payerid,
+    amount,
+    message,
+  );
 });

@@ -1,0 +1,44 @@
+/* eslint-disable */
+const request = require('supertest');
+const app = require('../app');
+require('../config/testSetup');
+
+describe('Favourite API Endpoints', () => {
+  it('returns 401 when accessed without authorization token', async () => {
+    const res = await request(app).post('/api/v1/favourites/addtofavourites').send({
+      projectid: '662ff03f69b43e06e00940e1',
+      creatorid: '662fd9cc392a484f5fcec147',
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('add projects to favourite list', async () => {
+    const res = await request(app)
+      .post('/api/v1/favourites/addtofavourites')
+      .send({
+        projectid: '662ff03f69b43e06e00940e1',
+        creatorid: '662fd9cc392a484f5fcec147',
+      })
+      .set(
+        'Authorization',
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY2MmZkOWNjMzkyYTQ4NGY1ZmNlYzE0NyIsInVzZXJuYW1lIjoiYmFtbGFrdSIsImFib3V0IjoidW5jb3ZlcmluZyB0aGUgdHJ1dGggYmVoaW5kIGNyZWF0aXZpdHkiLCJlbWFpbCI6ImJlYW1sYWt1QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJGFyZXFFNE1CLnFYL0o3aHg1eTBLVS42UXYxNjYvN0kxRldCSUVZYloyR0tPNzBBSWIuNDZ5IiwiZm9sbG93aW5nIjpbIjY2MmZkYTA1MzkyYTQ4NGY1ZmNlYzE0YSJdLCJpbnRlcmVzdCI6WyJzb2NpYWx3b3JrIiwic29jaWFscHJlbnVlciJdLCJ2aXNpYmlsaXR5IjoicHVibGljIiwiX192IjowLCJpZCI6IjY2MmZkOWNjMzkyYTQ4NGY1ZmNlYzE0NyJ9LCJpYXQiOjE3MTU0MTQzNzEsImV4cCI6MTcxNTUwMDc3MX0.iH27K3ZyP30AFIaCjNIfA7eQAsrnQ2a0erHrwWYNctg',
+      );
+    expect(res.statusCode).toBe(200);
+    expect(res.body.response).toEqual('Successfully added to favourites');
+  });
+
+  it('remove projects from favourite list when it is already added', async () => {
+    const res = await request(app)
+      .post('/api/v1/favourites/addtofavourites')
+      .send({
+        projectid: '662ff03f69b43e06e00940e1',
+        creatorid: '662fd9cc392a484f5fcec147',
+      })
+      .set(
+        'Authorization',
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY2MmZkOWNjMzkyYTQ4NGY1ZmNlYzE0NyIsInVzZXJuYW1lIjoiYmFtbGFrdSIsImFib3V0IjoidW5jb3ZlcmluZyB0aGUgdHJ1dGggYmVoaW5kIGNyZWF0aXZpdHkiLCJlbWFpbCI6ImJlYW1sYWt1QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJGFyZXFFNE1CLnFYL0o3aHg1eTBLVS42UXYxNjYvN0kxRldCSUVZYloyR0tPNzBBSWIuNDZ5IiwiZm9sbG93aW5nIjpbIjY2MmZkYTA1MzkyYTQ4NGY1ZmNlYzE0YSJdLCJpbnRlcmVzdCI6WyJzb2NpYWx3b3JrIiwic29jaWFscHJlbnVlciJdLCJ2aXNpYmlsaXR5IjoicHVibGljIiwiX192IjowLCJpZCI6IjY2MmZkOWNjMzkyYTQ4NGY1ZmNlYzE0NyJ9LCJpYXQiOjE3MTU0MTQzNzEsImV4cCI6MTcxNTUwMDc3MX0.iH27K3ZyP30AFIaCjNIfA7eQAsrnQ2a0erHrwWYNctg',
+      );
+    expect(res.statusCode).toBe(200);
+    expect(res.body.response).toEqual('Successfully removed from favourites');
+  });
+});
