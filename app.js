@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const cors = require('cors');
 const hpp = require('hpp');
 const session = require('express-session');
+const swaggerUi = require('swagger-ui-express');
+const specs = require('./docs/swagger');
 const ErrorHandler = require('./middlewares/error.handler');
 const morgan = require('./config/morgan');
 const v1routes = require('./routes/v1');
@@ -31,6 +33,7 @@ app.use(express.json());
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
 app.use(cors());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/v1', v1routes);
 
 // handle 404 error

@@ -1,11 +1,12 @@
 const httpStatus = require('http-status');
 const { FavouriteProject } = require('../models');
-const { ApiError } = require('../utils');
+const { ApiError, isValidObjectId } = require('../utils');
 
 const addToFavourites = async (projectid, creatorid) => {
-  if (!projectid || !creatorid) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Either project id or creator id is missing');
+  if (!isValidObjectId(projectid) || !isValidObjectId(creatorid)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing or invalid ids');
   }
+
   const alreadyAddedToFavourites = await FavouriteProject.findOne({ projectid, creatorid });
   if (!alreadyAddedToFavourites) {
     const newFavourites = new FavouriteProject({ projectid, creatorid });

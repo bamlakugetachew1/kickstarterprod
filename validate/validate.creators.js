@@ -19,4 +19,19 @@ const validateCreator = (req, res, next) => {
   }
 };
 
-module.exports = validateCreator;
+const validateUpdatedCreator = (req, res, next) => {
+  const updateCreatorValidationSchema = Joi.object({
+    username: Joi.string().min(5),
+    about: Joi.string().min(25),
+    password: Joi.string().min(5),
+  });
+
+  const { error } = updateCreatorValidationSchema.validate(req.body);
+  if (error) {
+    next(error);
+  } else {
+    next();
+  }
+};
+
+module.exports = { validateCreator, validateUpdatedCreator };

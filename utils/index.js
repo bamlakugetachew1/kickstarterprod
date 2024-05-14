@@ -10,3 +10,4 @@ module.exports.uploads = require('./multer');
 module.exports.handleServiceRequest = require('./handleServiceRequest');
 module.exports.payment = require('./payment');
 module.exports.eventEmitter = require('./eventEmitter');
+module.exports.isValidObjectId = require('./objectIdChecker');

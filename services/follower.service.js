@@ -1,10 +1,10 @@
 const httpStatus = require('http-status');
 const { Creator, Follower } = require('../models');
-const { ApiError } = require('../utils');
+const { ApiError, isValidObjectId } = require('../utils');
 
 const followCreator = async (followerid, followedid) => {
-  if (!followerid || !followedid) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Either followerid or followedid is missing');
+  if (!isValidObjectId(followerid) || !isValidObjectId(followedid)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing or invalid ids');
   }
   const followingUser = await Creator.findOne({ _id: followerid });
   if (followingUser.following.includes(followedid)) {

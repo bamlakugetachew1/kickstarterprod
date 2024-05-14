@@ -13,7 +13,7 @@ exports.loginCreator = catchAsync(async (req, res) =>
 
 exports.individualCreatorsDetails = catchAsync(async (req, res) =>
   // eslint-disable-next-line max-len
-  handleServiceRequest(res, creatorService.individualCreatorsDetails, httpStatus.OK, '', req.query.creatorid),
+  handleServiceRequest(res, creatorService.individualCreatorsDetails, httpStatus.OK, req.query.creatorid),
 );
 
 exports.getFavourites = catchAsync(async (req, res) =>

@@ -4,16 +4,15 @@ const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
 const { Project, MyProject, Payment, BackedProject, FavouriteProject } = require('../models');
-const { ApiError, getContentType } = require('../utils');
+const { ApiError, getContentType, eventEmitter, isValidObjectId } = require('../utils');
 const aggregateQuery = require('../aggregateQuery');
 const { imageProcessor, videoProcessor } = require('../background-tasks');
 const client = require('../config/redis');
-const { eventEmitter } = require('../utils');
 require('../subscribers/removeCatchedProjects');
 
 const checkProjectId = (projectid) => {
-  if (!projectid) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Project ID is a required field');
+  if (!isValidObjectId(projectid)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'missing or invalid projectid');
   }
 };
 
@@ -23,7 +22,7 @@ const streamFile = async (res, fileName, fileDirectory, isVideoFile = false) => 
   }
   const filePath = path.join(__dirname, '..', fileDirectory, isVideoFile ? `${fileName}.gz` : fileName);
   if (!fs.existsSync(filePath)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'File not found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'File not found');
   }
   const contentType = getContentType(fileName);
   res.setHeader('Content-Type', contentType);
@@ -40,23 +39,31 @@ const streamFile = async (res, fileName, fileDirectory, isVideoFile = false) => 
 
 const createProject = async (projectData) => {
   const newProject = new Project(projectData);
-  const savedProject = await newProject.save();
+  const projectPromise = newProject.save();
 
-  if (!savedProject) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create project');
-  }
-
-  const associatedProject = new MyProject({
-    // eslint-disable-next-line no-underscore-dangle
-    projectid: savedProject._id,
-    creatorid: savedProject.creator.userid,
+  const associatedProjectPromise = projectPromise.then((savedProject) => {
+    if (!savedProject) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create project');
+    }
+    const associatedProject = new MyProject({
+      // eslint-disable-next-line no-underscore-dangle
+      projectid: savedProject._id,
+      creatorid: savedProject.creator.userid,
+    });
+    return associatedProject.save();
   });
 
-  const savedAssociatedProject = await associatedProject.save();
+  // eslint-disable-next-line max-len
+  const [savedProject, savedAssociatedProject] = await Promise.all([projectPromise, associatedProjectPromise]);
 
-  if (!savedAssociatedProject) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create associated project');
+  if (!savedProject || !savedAssociatedProject) {
+    if (savedProject) {
+      // eslint-disable-next-line no-underscore-dangle
+      await Project.findByIdAndDelete(savedProject._id);
+    }
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create project or associated project');
   }
+
   eventEmitter.emit('clearCatched', 'projects');
   return 'Project added successfully';
 };
@@ -64,7 +71,8 @@ const createProject = async (projectData) => {
 const updateProject = async (projectData) => {
   const { projectid } = projectData;
   checkProjectId(projectid);
-  const updatedProject = await Project.findByIdAndUpdate(projectid, { $set: projectData });
+  // eslint-disable-next-line max-len
+  const updatedProject = await Project.findByIdAndUpdate(projectid, { $set: projectData }, { new: true });
   if (!updatedProject) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Project not found');
   }
@@ -132,7 +140,7 @@ const searchProjects = async (searchQuery) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Search query is a required field');
   }
   const searchedProjects = await Project.find({ $text: { $search: searchQuery } }).limit(8);
-  if (!searchedProjects) {
+  if (searchedProjects.length === 0) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No results found');
   }
   return searchedProjects;
@@ -202,11 +210,11 @@ const uploadVideo = async (files) => {
 };
 
 const streamImage = async (res, fileName) => {
-  streamFile(res, fileName, 'compressedimages');
+  await streamFile(res, fileName, 'compressedimages');
 };
 
 const streamVideo = async (res, filename) => {
-  streamFile(res, filename, 'compressedvideo', true);
+  await streamFile(res, filename, 'compressedvideo', true);
 };
 
 module.exports = {

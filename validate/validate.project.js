@@ -26,4 +26,22 @@ const validateProject = (req, res, next) => {
   next();
 };
 
-module.exports = validateProject;
+const validateUpdatedProject = (req, res, next) => {
+  const updatedProjectValidationSchema = Joi.object({
+    projectid: Joi.string(),
+    title: Joi.string().min(5),
+    descreptons: Joi.string().min(50),
+    catagory: Joi.array().items(Joi.string()).min(2),
+    reward: Joi.array().items(Joi.string()),
+    updates: Joi.array().items(Joi.string()),
+  });
+
+  const { error } = updatedProjectValidationSchema.validate(req.body);
+  if (error) {
+    next(error);
+  }
+
+  next();
+};
+
+module.exports = { validateProject, validateUpdatedProject };

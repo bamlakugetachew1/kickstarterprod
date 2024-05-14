@@ -6,7 +6,7 @@ const { catchAsync, handleServiceRequest } = require('../utils');
 exports.fundProjects = catchAsync(async (req, res) => {
   const { projectid, payerid, amount, message } = req.body;
   req.session.paymentData = { projectid, payerid, amount, message };
-  handleServiceRequest(res, paymentService.fundProjects, httpStatus.OK, amount, message);
+  handleServiceRequest(res, paymentService.fundProjects, httpStatus.OK, amount, message, projectid, payerid);
 });
 
 exports.refundPayment = catchAsync(async (req, res) => {

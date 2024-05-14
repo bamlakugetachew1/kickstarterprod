@@ -1,6 +1,8 @@
+const httpStatus = require('http-status');
 const { Payment, Project, BackedProject } = require('../models');
 const { payment } = require('../utils');
 const { PaypalAccessToken } = require('../config/env.config');
+const { ApiError, isValidObjectId } = require('../utils');
 
 const saveBackedProjects = async (projectid, creatorid) => {
   const BackedProjects = new BackedProject({
@@ -10,22 +12,30 @@ const saveBackedProjects = async (projectid, creatorid) => {
   await BackedProjects.save();
 };
 
-const fundProjects = async (amount, message) => {
+const fundProjects = async (amount, message, projectid, payerid) => {
+  if (!isValidObjectId(projectid) || !isValidObjectId(payerid)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing or invalid ids');
+  }
   const paymentUrl = await payment.createPayment(amount, message, PaypalAccessToken);
   return paymentUrl;
 };
 
 const refundPayment = async (projectid, paymentemail, isAmount) => {
+  if (!isValidObjectId(projectid) || !paymentemail) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing or invalid ids');
+  }
+
   let amount = isAmount ? isAmount * 0.95 : 0;
   const account = await Payment.findOne({ projectid, paymentemail });
+  if (!account) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No asscociated account found');
+  }
   if (!isAmount) {
     amount = account.amount;
   }
 
   await payment.initiatePayout(amount, account.paymentemail, PaypalAccessToken);
-  if (account) {
-    await Payment.findOneAndDelete({ projectid, paymentemail });
-  }
+  await Payment.findOneAndDelete({ projectid, paymentemail });
   if (isAmount) {
     await Project.findOneAndUpdate({ _id: projectid }, { completed: true });
   }

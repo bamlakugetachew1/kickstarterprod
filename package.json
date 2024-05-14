@@ -61,6 +61,8 @@
     "redis": "^4.6.13",
     "sharp": "^0.33.3",
     "supertest": "^7.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "winston": "^3.13.0"
   }
 }

@@ -1,10 +1,10 @@
 const httpStatus = require('http-status');
 const { Creator, FavouriteProject, BackedProject, MyProject } = require('../models');
-const { ApiError, hashPassword, compareHashes, generateToken } = require('../utils');
+const { ApiError, hashPassword, compareHashes, generateToken, isValidObjectId } = require('../utils');
 
 const checkCreatorId = (creatorid) => {
-  if (!creatorid) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Creator ID is required in query parameters');
+  if (!isValidObjectId(creatorid)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Creator ID is either invalid or missing');
   }
 };
 
@@ -12,7 +12,7 @@ const createCreators = async (userBody) => {
   const existingUser = await Creator.findOne({ email: userBody.email });
 
   if (existingUser) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'This email is already registered');
+    throw new ApiError(httpStatus.CONFLICT, 'This email is already registered');
   }
 
   const hashedPassword = await hashPassword(userBody.password);
@@ -24,6 +24,9 @@ const createCreators = async (userBody) => {
 
 const loginCreator = async (userBody) => {
   const { email, password } = userBody;
+  if (!email || !password) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'either email or password is missing');
+  }
   const existingUser = await Creator.findOne({ email });
   if (!existingUser) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Email not found in our system');
@@ -123,7 +126,7 @@ const updateAccountDetails = async (userid, userBody) => {
 const toggleVisibility = async (userid) => {
   const creator = await Creator.findById(userid);
   if (!creator) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'No user found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'No user found');
   }
   creator.visibility = creator.visibility === 'public' ? 'private' : 'public';
   await creator.save();

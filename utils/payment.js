@@ -1,7 +1,8 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable consistent-return */
 const axios = require('axios');
-const logger = require('../logger/logger');
+const httpStatus = require('http-status');
+const ApiError = require('./ApiError');
 
 const createPayment = async (amount, description, accessToken) => {
   try {
@@ -33,7 +34,13 @@ const createPayment = async (amount, description, accessToken) => {
     const paymentUrl = response.data.links.find((link) => link.rel === 'approval_url').href;
     return paymentUrl;
   } catch (error) {
-    logger.error(error);
+    if (error.response) {
+      throw new ApiError(error.response.status, error.response.data.message || 'Payment creation failed');
+    } else if (error.request) {
+      throw new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'No response received from PayPal');
+    } else {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 };
 
@@ -48,7 +55,13 @@ async function getPaymentDetails(paymentId, accessToken) {
 
     return response.data;
   } catch (error) {
-    logger.error(error);
+    if (error.response) {
+      throw new ApiError(error.response.status, error.response.data.message || 'getting payment info failed');
+    } else if (error.request) {
+      throw new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'No response received from PayPal');
+    } else {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 }
 
@@ -67,7 +80,13 @@ async function executePayment(paymentId, payerId, accessToken) {
     const paymentStatus = response.data.state;
     return paymentStatus;
   } catch (error) {
-    logger.error(error);
+    if (error.response) {
+      throw new ApiError(error.response.status, error.response.data.message || 'Payment execution failed');
+    } else if (error.request) {
+      throw new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'No response received from PayPal');
+    } else {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 }
 async function initiatePayout(amount, recipientPayPalEmail, accessToken) {
@@ -101,8 +120,13 @@ async function initiatePayout(amount, recipientPayPalEmail, accessToken) {
 
     return response.data;
   } catch (error) {
-    logger.error(error);
-    throw error;
+    if (error.response) {
+      throw new ApiError(error.response.status, error.response.data.message || 'Payment payout intiations failed');
+    } else if (error.request) {
+      throw new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'No response received from PayPal');
+    } else {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 }
 
