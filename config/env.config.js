@@ -14,4 +14,5 @@ module.exports = {
   SecretToken: envValues.SecretToken,
   PaypalAccessToken: envValues.PaypalAccessToken,
   SessionKey: envValues.SessionKey,
+  redisUrl: envValues.redisUrl,
 };

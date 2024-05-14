@@ -1,4 +1,5 @@
 const redis = require('redis');
+const { redisUrl } = require('./env.config');
 
-const client = redis.createClient({ url: 'redis://127.0.0.1:6379' });
+const client = redis.createClient({ url: redisUrl });
 module.exports = client;

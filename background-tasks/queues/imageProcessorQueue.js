@@ -1,9 +1,7 @@
 const { Queue } = require('bullmq');
+const { redisUrl } = require('../../config/env.config');
 
 const imageProcessorQueue = new Queue('imageprocessor', {
-  connection: {
-    host: 'localhost',
-    port: '6379',
-  },
+  connection: redisUrl,
 });
 module.exports = imageProcessorQueue;

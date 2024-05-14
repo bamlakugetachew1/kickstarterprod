@@ -1,5 +1,6 @@
 const { Worker } = require('bullmq');
 const { compressimage, compressvideo } = require('../../utils');
+const { redisUrl } = require('../../config/env.config');
 
 const startImageProcessor = async () => {
   const imageProcessorWorker = new Worker(
@@ -9,11 +10,7 @@ const startImageProcessor = async () => {
       await compressimage(filenames);
     },
     {
-      // Move the opening curly brace here
-      connection: {
-        host: 'localhost',
-        port: '6379',
-      },
+      connection: redisUrl,
       autorun: true,
       removeOnComplete: true,
       concurrency: 3,
@@ -30,11 +27,7 @@ const startVideoProcessor = async () => {
       await compressvideo(filename);
     },
     {
-      // Move the opening curly brace here
-      connection: {
-        host: 'localhost',
-        port: '6379',
-      },
+      connection: redisUrl,
       autorun: true,
       removeOnComplete: true,
       concurrency: 3,

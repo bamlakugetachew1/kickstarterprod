@@ -8,6 +8,7 @@ const validateconfig = joi
     SecretToken: joi.string().required(),
     PaypalAccessToken: joi.string().required(),
     SessionKey: joi.string().required(),
+    redisUrl: joi.string().required(),
   })
   .unknown();
 module.exports = validateconfig;
