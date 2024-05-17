@@ -1,31 +1,19 @@
-const fs = require('fs');
-const zlib = require('zlib');
-const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
 const logger = require('../logger/logger');
 const catchAsync = require('./catchAsync');
 
-const compressVideo = catchAsync(async (filename) => {
-  const inputPath = path.join(__dirname, '..', 'videos', filename);
-  const outputPath = path.join(__dirname, '..', 'compressedvideo', `${filename}.gz`);
-
-  await new Promise((resolve, reject) => {
-    const readStream = fs.createReadStream(inputPath);
-    const writeStream = fs.createWriteStream(outputPath);
-
-    const gzip = zlib.createGzip();
-
-    readStream.pipe(gzip).pipe(writeStream);
-
-    writeStream.on('finish', () => {
-      logger.info('Compression finished');
-      resolve();
-    });
-
-    writeStream.on('error', (err) => {
-      logger.error('Error during compression:', err);
-      reject(err);
-    });
-  });
+const compressVideo = catchAsync(async (filePath) => {
+  ffmpeg(filePath)
+    .videoCodec('libx264')
+    .videoBitrate('1000k')
+    .size('1280x720')
+    .on('error', (err) => {
+      logger.error('An error occurred:', err.message);
+    })
+    .on('end', () => {
+      logger.info('Compression complete');
+    })
+    .save(filePath);
 });
 
 module.exports = compressVideo;

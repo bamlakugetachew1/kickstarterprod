@@ -15,4 +15,7 @@ module.exports = {
   PaypalAccessToken: envValues.PaypalAccessToken,
   SessionKey: envValues.SessionKey,
   redisUrl: envValues.redisUrl,
+  Cloudnry_Api: envValues.Cloudnry_Api,
+  Cloudnry_Secret: envValues.Cloudnry_Secret,
+  Cloudnry_Name: envValues.Cloudnry_Name,
 };

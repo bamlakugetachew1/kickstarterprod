@@ -23,8 +23,8 @@ const startVideoProcessor = async () => {
   const videoProcessorWorker = new Worker(
     'videoprocessor',
     async (job) => {
-      const { filename } = job.data;
-      await compressvideo(filename);
+      const { path } = job.data;
+      await compressvideo(path);
     },
     {
       connection: redisUrl,

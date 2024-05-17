@@ -1,12 +1,12 @@
 const bcrypt = require('bcrypt');
+const catchAsync = require('./catchAsync');
 
-const compareHashes = async (recivedpassword, savedpassword) => {
-  try {
-    const result = await bcrypt.compare(recivedpassword, savedpassword);
-    return result;
-  } catch (error) {
-    throw new Error('Hashes not matches');
+const compareHashes = catchAsync(async (receivedPassword, savedPassword) => {
+  const result = await bcrypt.compare(receivedPassword, savedPassword);
+  if (!result) {
+    throw new Error('Hashes do not match');
   }
-};
+  return result;
+});
 
 module.exports = compareHashes;

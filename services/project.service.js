@@ -1,10 +1,7 @@
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
-const path = require('path');
-const fs = require('fs');
-const zlib = require('zlib');
 const { Project, MyProject, Payment, BackedProject, FavouriteProject } = require('../models');
-const { ApiError, getContentType, eventEmitter, isValidObjectId } = require('../utils');
+const { ApiError, eventEmitter, isValidObjectId, streamFile } = require('../utils');
 const aggregateQuery = require('../aggregateQuery');
 const { imageProcessor, videoProcessor } = require('../background-tasks');
 const client = require('../config/redis');
@@ -14,27 +11,6 @@ const checkProjectId = (projectid) => {
   if (!isValidObjectId(projectid)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'missing or invalid projectid');
   }
-};
-
-const streamFile = async (res, fileName, fileDirectory, isVideoFile = false) => {
-  if (!fileName) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Filename is required');
-  }
-  const filePath = path.join(__dirname, '..', fileDirectory, isVideoFile ? `${fileName}.gz` : fileName);
-  if (!fs.existsSync(filePath)) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'File not found');
-  }
-  const contentType = getContentType(fileName);
-  res.setHeader('Content-Type', contentType);
-  const readStream = fs.createReadStream(filePath);
-  if (isVideoFile) {
-    readStream.pipe(zlib.createGunzip()).pipe(res);
-  } else {
-    readStream.pipe(res);
-  }
-  readStream.on('error', (err) => {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err);
-  });
 };
 
 const createProject = async (projectData) => {
@@ -189,32 +165,33 @@ const uploadImage = async (files) => {
   if (!files || files.length === 0) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No file uploaded');
   }
-  const filenames = files.map((file) => file.filename);
+  const fileUrls = files.map((file) => file.path);
   await imageProcessor.Queue.add('imageprocessor', {
-    filenames,
+    fileUrls,
   });
   await imageProcessor.Worker();
-  return filenames;
+  return fileUrls;
 };
 
 const uploadVideo = async (files) => {
   if (!files || files.length === 0) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No file uploaded');
   }
-  const { filename } = files[0];
+  // eslint-disable-next-line no-shadow
+  const { path } = files[0];
   await videoProcessor.Queue.add('videoprocessor', {
-    filename,
+    path,
   });
   await videoProcessor.Worker();
-  return filename;
+  return path;
 };
 
-const streamImage = async (res, fileName) => {
-  await streamFile(res, fileName, 'compressedimages');
+const streamImage = async (res, fileUrl) => {
+  await streamFile(res, fileUrl);
 };
 
-const streamVideo = async (res, filename) => {
-  await streamFile(res, filename, 'compressedvideo', true);
+const streamVideo = async (res, fileUrl) => {
+  await streamFile(res, fileUrl, 'compressedvideo', true);
 };
 
 module.exports = {

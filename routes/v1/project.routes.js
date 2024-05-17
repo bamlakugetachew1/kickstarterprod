@@ -2,7 +2,7 @@
 const router = require('express').Router();
 const { validateProject, validateUpdatedProject } = require('../../validate/validate.project');
 const projectcontroller = require('../../controllers/project.controller');
-const upload = require('../../utils/multer');
+const { uploadMiddleware } = require('../../utils');
 const verifyToken = require('../../middlewares/verify.token');
 /**
  * @swagger
@@ -753,7 +753,7 @@ router.patch('/updateproject', validateUpdatedProject, projectcontroller.updateP
  *       '500':
  *         description: Internal Server Error. An error occurred while processing the images.
  */
-router.post('/uploadimages', upload.array('coverimage'), projectcontroller.uploadImage);
+router.post('/uploadimages', uploadMiddleware('coverimage'), projectcontroller.uploadImage);
 
 /**
  * @swagger
@@ -796,6 +796,6 @@ router.post('/uploadimages', upload.array('coverimage'), projectcontroller.uploa
  *         description: Internal Server Error. An error occurred while processing the video.
  */
 
-router.post('/uploadvideo', upload.array('video'), projectcontroller.uploadVideo);
+router.post('/uploadvideo', uploadMiddleware('video'), projectcontroller.uploadVideo);
 
 module.exports = router;
