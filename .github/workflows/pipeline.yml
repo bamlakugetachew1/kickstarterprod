@@ -1,0 +1,48 @@
+# The name of the workflow.
+name: Build and Deploy
+
+# Run the workflow when code is pushed to the main branch
+on:
+  push:
+    branches:
+      - master
+
+# Set environment variables
+env:
+  NODE_ENV: ${{ secrets. NODE_ENV }}
+  port: ${{ secrets.port }}
+  MONGO_URL: ${{ secrets.MONGO_URL }}
+  SecretToken: ${{ secrets.SecretToken }}
+  PaypalAccessToken: ${{ secrets.PaypalAccessToken }}
+  SessionKey: ${{ secrets.SessionKey }}
+  Cloudnry_Api: ${{ secrets.Cloudnry_Api }}
+  Cloudnry_Secret: ${{ secrets.Cloudnry_Secret }}
+  Cloudnry_Name: ${{ secrets.Cloudnry_Name }}
+  redisUrl: ${{ secrets.redisUrl }}
+
+# This is the workflow that is being run.
+jobs:
+  build-and-deploy:
+    # This is telling GitHub to run the workflow on the latest version of Ubuntu.
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the GitHub repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install dependencies, export environment variables to be used by application and run tests for the server application
+      - name: Install and Test Server
+        working-directory: ./KickstarterBackend - Copy (3)
+        run: |
+          npm install
+          export NODE_ENV=$NODE_ENV
+          export port=$port
+          export MONGO_URL=$MONGO_URL
+          export SecretToken=$SecretToken
+          export PaypalAccessToken=$PaypalAccessToken
+          export SessionKey=$SessionKey
+          export Cloudnry_Api=$Cloudnry_Api
+          export Cloudnry_Secret=$Cloudnry_Secret
+          export Cloudnry_Name=$Cloudnry_Name
+          export redisUrl=$redisUrl
+          npm test

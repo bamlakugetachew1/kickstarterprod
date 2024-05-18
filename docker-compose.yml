@@ -13,6 +13,9 @@ services:
       PaypalAccessToken: A21AAJIPJX2glqzOb45GI8ZeVJzEfnDa8M3NcHgVnPW3jot5HBhjR8xT--2i_ofRhu0tIzMcO2pmQSlqVVzzDge9Zg2N-qfmA
       SessionKey: sampleexpressSessionkey3000
       NODE_ENV: development
+      Cloudnry_Api: 259339964158984
+      Cloudnry_Secret: rp5aax3wdR1DTtJS07BCpr3RyB4
+      Cloudnry_Name: dwq2ftoo3
     depends_on:
       - mongo
       - redis
