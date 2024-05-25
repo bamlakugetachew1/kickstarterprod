@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   app:
-    image: abuye1/kickbackend:app_latest
+    build: .
+    image: abuye1/kickbackend:build
+    ports:
+      - '3000'
     environment:
       MONGO_URL: ${MONGO_URL}
       redisUrl: ${redisUrl}
@@ -14,11 +17,33 @@ services:
       Cloudnry_Api: ${Cloudnry_Api}
       Cloudnry_Secret: ${Cloudnry_Secret}
       Cloudnry_Name: ${Cloudnry_Name}
+    depends_on:
+      - mongo
+      - redis
     deploy:
       replicas: 3
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
   nginx:
-    image: abuye1/kickbackend:app_latest
+    image: nginx:latest
     ports:
       - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app
+volumes:
+  mongo-data:
+  redis-data:
