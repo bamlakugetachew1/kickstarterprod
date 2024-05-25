@@ -32,7 +32,7 @@ jobs:
 
       # Install dependencies, export environment variables to be used by application and run tests for the server application
       - name: Install and Test Server
-        working-directory: ./KickstarterBackend - Copy (3)
+        working-directory: ./
         run: |
           npm install
           export NODE_ENV=$NODE_ENV
@@ -46,3 +46,35 @@ jobs:
           export Cloudnry_Name=$Cloudnry_Name
           export redisUrl=$redisUrl
           npm test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          name: Set environment variables
+          run: |
+            echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
+            echo "port=${{ secrets.port }}" >> $GITHUB_ENV
+            echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> $GITHUB_ENV
+            echo "SecretToken=${{ secrets.SecretToken }}" >> $GITHUB_ENV
+            echo "PaypalAccessToken=${{ secrets.PaypalAccessToken }}" >> $GITHUB_ENV
+            echo "SessionKey=${{ secrets.SessionKey }}" >> $GITHUB_ENV
+            echo "Cloudnry_Api=${{ secrets.Cloudnry_Api }}" >> $GITHUB_ENV
+            echo "Cloudnry_Secret=${{ secrets.Cloudnry_Secret }}" >> $GITHUB_ENV
+            echo "Cloudnry_Name=${{ secrets.Cloudnry_Name }}" >> $GITHUB_ENV
+            echo "redisUrl=${{ secrets.redisUrl }}" >> $GITHUB_ENV
+      - name: Build Server Docker Image
+        working-directory: ./
+        run: |
+          docker build -t abuye1/kickbackend:app_latest .
+      - name: Build nginx server Image
+        working-directory: ./nginx
+        run: |
+            docker build -t abuye1/kickbackend:nginx_latest .
+      - name: Push docker images
+        run: |
+          docker push abuye1/kickbackend:app_latest
+          docker push abuye1/kickbackend:nginx_latest
+
