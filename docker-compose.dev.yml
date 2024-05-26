@@ -3,20 +3,10 @@ version: '3.8'
 services:
   app:
     build: .
-    image: abuye1/kickbackend:build
     ports:
-      - '3000'
-    environment:
-      MONGO_URL: ${MONGO_URL}
-      redisUrl: ${redisUrl}
-      port: ${port}
-      SecretToken: ${SecretToken}
-      PaypalAccessToken: ${PaypalAccessToken}
-      SessionKey: ${SessionKey}
-      NODE_ENV: ${NODE_ENV}
-      Cloudnry_Api: ${Cloudnry_Api}
-      Cloudnry_Secret: ${Cloudnry_Secret}
-      Cloudnry_Name: ${Cloudnry_Name}
+      - '3000:3000'
+    env_file:
+      - .env
     depends_on:
       - mongo
       - redis
@@ -36,14 +26,16 @@ services:
       - '6379:6379'
     volumes:
       - redis-data:/data
+
   nginx:
-    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     ports:
       - '80:80'
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app
+
 volumes:
   mongo-data:
   redis-data:
