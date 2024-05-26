@@ -7,7 +7,6 @@ Welcome to the **Crowdfunding App Backend API**! This RESTful API is designed fo
 - [Technologies Used](#technologies-used)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
@@ -47,4 +46,32 @@ Welcome to the **Crowdfunding App Backend API**! This RESTful API is designed fo
 
 1. **Clone the repository**:
    ```sh
-   git clone https://github.com/yourusername/crowdfunding-api.git
+   git clone https://github.com/bamlakugetachew1/kickstarterprod.git
+   
+2. **Install dependencies**:
+   ```sh
+   cd kickstarterprod
+   npm install
+   
+3. **Set up environment variables: Copy the .env.sample file to .env and obtain any necessary API keys from third-party services if needed**:
+
+4. **Start development server**:
+   ```sh
+   npm start
+   ```
+
+5. **Run Docker**:
+   ```sh
+   docker-compose.dev up --build
+
+## Usage
+
+Once the server is up and running:
+
+- If you're accessing through `npm start`, you can browse the API documentation at `http://localhost:3000/api-docs`.
+- If you're using Docker, the API documentation can be found at `http://localhost/api-docs`, as Nginx is set up to proxy requests to port 3000 internally.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
