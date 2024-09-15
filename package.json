@@ -4,7 +4,7 @@
   "description": "a backend for final year project",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "test": "jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
